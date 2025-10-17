@@ -36,3 +36,12 @@ This protocol is used to transform the static questions into an interactive, spa
    - Close the Loop: If the AI indicates an error or gap, immediately stop the test and return to the original textbook/source material to correct that knowledge point before proceeding.
 
 This process prioritizes deep knowledge retrieval over simply getting the answer correct
+
+## Explanation of Columns
+
+| Column            | Full Name / Purpose        | Explanation                                                                                                                                                                                                    |
+| :---------------- | :------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **ID**            | Unique Question Identifier | Used for quick referencing and tracking the question.                                                                                                                                                          |
+| **Question**      | The Retrieval Prompt       | This is the core of the exercise. Questions are deliberately designed to test your mechanisms ("How does it work?") and applications ("Why is this relevant?"). This column forces active recall.              |
+| **Status**        | Completion Status          | Tracks the current state of your mastery for this question: **PENDING** (Not yet reviewed), **REVIEW** (Answered incorrectly, needs spaced repetition soon), **MASTERED** (Answered correctly multiple times). |
+| **Last Reviewed** | Date of Last Attempt       | Used for implementing _Spaced Repetition_. This date tells you when you last successfully retrieved the answer, informing when you should next be quizzed on it (e.g., 3 days later, 1 week later).            |
