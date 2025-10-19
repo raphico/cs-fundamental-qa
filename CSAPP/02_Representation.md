@@ -36,3 +36,27 @@
 17. The C standard leaves the behavior of the **right shift operator ($\gg$)** on signed integers **implementation-defined** (allowing for logical or arithmetic shift) or **undefined** (if shifting a negative number). Given this ambiguity, why is it considered a **systems best practice** to explicitly cast an integer to an **unsigned type** _before_ performing a right shift operation if a **logical shift** is required, ensuring maximum portability and predictability?
 
 18. From a hardware architecture perspective, do modern CPUs execute bitwise operations ($\&, |, \wedge$) on a 64-bit integer **simultaneously across all 64 bit positions** or **consecutively**? Briefly explain the design principle (e.g., parallelism within the ALU) that dictates this performance choice.
+
+19. Does the C standard mandate that signed integers must be represented using the Two's Complement scheme? If not, identify the three permissible options under the C standard (C99/C11), and explain why the standard maintains this flexibility
+
+20. For a $w$-bit binary representation using Two's Complement, state the minimum and maximum representable integer values in terms of $w$. Explain the asymmetry in this range—why is there one negative number with no positive counterpart—and identify this specific value (e.g., $T_{\text{min}}$).
+
+21. Describe the precise consequence and failure mode that occurs in C when a programmer attempts to calculate the absolute value of the minimum two's complement integer, $T_{\text{min}}$ (e.g., abs(TMin)). What mathematical property of two's complement is violated, and what value is incorrectly produced?
+
+22. Identify the most common computer architecture representation for signed integers. Why has this particular scheme (Two's Complement) become dominant over alternatives like One's Complement or Signed Magnitude, specifically concerning the simplification of arithmetic hardware (e.g., addition and subtraction) and the handling of the number zero?
+
+23. When a signed integer variable is explicitly cast to its corresponding unsigned type (e.g., (unsigned int)x), what fundamental characteristic of the value is preserved, and what characteristic is fundamentally altered? Specifically, explain how the underlying bit pattern relates to the numeric value interpretation across this conversion.
+
+24. When converting a value from a smaller integer type to a larger integer type (e.g., short to long), describe the two distinct bit-extension mechanisms employed . Under what precise conditions (based on the original type's signedness) is each mechanism selected, and why is this choice critical for preserving the numeric value of the original integer?
+
+25. Consider the expression (unsigned int)s, where s is a negative signed short. At the binary level, does the system first perform a type promotion (e.g., to signed int) and then the unsigned reinterpretation (casting), or vice-versa? Explain the sequence required to correctly yield the final unsigned int value.
+
+26. Define truncation in the context of integer conversion. Describe the specific, low-level binary operation that implements truncation (e.g., for converting a 32-bit int to an 8-bit char), and how this process inherently leads to loss of the Most Significant Bits (MSBs) and potential data corruption
+
+27. Explain why unsigned integers are the preferred and most logical choice for low-level tasks that require treating data as a collection of raw bits (e.g., creating bitmasks, implementing bitsets, or working with hardware registers)
+
+28. In C, are integer constants (e.g., 123, 0xAF) treated as signed or unsigned by default? Explain the rule C uses to determine the type of an un-suffixed integer constant, considering the value and the sizes of the standard integer types.
+
+29. The C standard deliberately avoids specifying the exact binary mechanism for conversions between signed and unsigned integers (it only specifies the final mathematical result). Why does the standard prioritize the mathematical outcome over the binary mechanism, and how does this relate to the standard's need to support architectures that use signed representations other than Two's Complement?
+
+30. Explain the integer promotion rule regarding signed and unsigned types in C expressions (e.g., signed_var < unsigned_var). Describe the subtle bug that results from the implicit conversion of the signed operand to an unsigned type, leading to a mathematically incorrect comparison. Provide a small code snippet demonstrating an instance where this behavior could lead to a buffer overflow or other system vulnerability.
