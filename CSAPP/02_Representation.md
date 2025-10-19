@@ -60,3 +60,23 @@
 29. The C standard deliberately avoids specifying the exact binary mechanism for conversions between signed and unsigned integers (it only specifies the final mathematical result). Why does the standard prioritize the mathematical outcome over the binary mechanism, and how does this relate to the standard's need to support architectures that use signed representations other than Two's Complement?
 
 30. Explain the integer promotion rule regarding signed and unsigned types in C expressions (e.g., signed_var < unsigned_var). Describe the subtle bug that results from the implicit conversion of the signed operand to an unsigned type, leading to a mathematically incorrect comparison. Provide a small code snippet demonstrating an instance where this behavior could lead to a buffer overflow or other system vulnerability.
+
+31. Describe the core mechanism of fixed-precision arithmetic in C's unsigned integers (as opposed to arbitrary-precision arithmetic). Given the sum of two $w$-bit unsigned integers, $x+y$, explain precisely why the result is equivalent to computing $(x+y) \pmod{2^w}$. Furthermore, formulate the systems-level check a programmer must implement to reliably detect an unsigned addition overflow, and justify why checking if the sum is less than one of the operands works.
+
+32. Explain the key difference between unsigned overflow (wrap-around) and two's complement overflow. Two's complement addition is defined by $(x+y) \pmod{2^w}$ just like unsigned, yet the overflow is only flagged when the result is out of the signed range $[T_{\text{min}}, T_{\text{max}}]$. Describe the two specific conditions (one for positive, one for negative) that indicate a signed overflow has occurred in a $w$-bit arithmetic operation.
+
+33. Define the additive inverse of an integer $x$ in modular arithmetic.
+
+    - For a $w$-bit unsigned integer $x$, derive the mathematical expression for its additive inverse, $-_{u}x$.
+    - For the $w$-bit two's complement minimum value, $T_{\text{min}}$, explain the specific bit-level operation (negation) that results in $T_{\text{min}}$ being its own additive inverse, and why this is a direct consequence of the two's complement range asymmetry.
+
+34. When multiplying two $w$-bit integers (signed or unsigned), the true mathematical product can require up to $2w$ bits
+
+    - Describe the hardware mechanism used to generate the full $2w$-bit product (e.g., using two registers or a dedicated unit).
+    - Explain the failure mode and loss of information when this $2w$-bit product is immediately truncated back to a $w$-bit C integer.
+
+35. A key compiler optimization involves replacing multiplication by a constant $K$ with a sequence of shift and add/subtract operations. Given a constant $K = 17$, provide the equivalent expression using only the <<, +, and - operators, and explain why this transformation is often faster than a full integer multiplication instruction on many architectures.
+
+36. Show the low-level equivalence between performing a logical right shift by $k$ positions (x >> k) on an unsigned integer $x$ and calculating the mathematical expression $\lfloor x / 2^k \rfloor$. Justify why this shift-based operation is dramatically faster than the general division instruction.
+
+37. Explain why simply using an arithmetic right shift by $k$ positions (x >> k) on a negative signed integer $x$ (two's complement) does not correctly compute $\lfloor x / 2^k \rfloor$ (integer division). Describe the biasing step that must be computationally inserted before the right shift to ensure the operation correctly implements C's definition of rounding toward zero for negative numbers.
