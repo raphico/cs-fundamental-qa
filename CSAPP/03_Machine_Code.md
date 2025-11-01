@@ -33,3 +33,21 @@
 16. In compiled assembly code, one frequently encounters the instruction **`xorq %rcx, %rcx`** even when no logical exclusive-OR operation was present in the C source.
     * What is the **precise effect** of this instruction on the register's value?
     * **Why** do compilers favor this instruction over the seemingly more straightforward `movq $0, %rcx` or `subq %rcx, %rcx`? (Hint: Consider the instruction's size and dependencies.)
+
+17. Identify the four primary **single-bit condition code registers** in the x86-64 CPU and state the precise event (e.g., overflow, sign change, zero result) that each one tracks. Then, explain the **difference in overflow detection**—how is the **Carry Flag (CF)** used to detect overflow for **unsigned** operations, while the **Overflow Flag (OF)** is used for **two's complement (signed)** operations?
+
+18. The `leaq` instruction is unique among arithmetic/logical operations because it **does not set any condition codes**. Justify this design choice by explaining the instruction's primary intended use in **address computation**. Why is setting flags unnecessary or even undesirable for its core purpose?
+
+19. Compare and contrast the purpose and mechanism of the **`cmp`** instruction class versus the **`test`** instruction class. Explain why these instructions are essential for control flow, specifically describing their shared characteristic of **setting condition codes without altering any general-purpose registers**.
+
+20. The `inc` and `dec` instructions set the **Overflow (OF)** and **Zero (ZF)** flags but **leave the Carry Flag (CF) unchanged**. Explain the systems engineering implication of this specific design choice. (Hint: Consider the common use of the CF in multi-precision arithmetic.)
+
+21. Differentiate between **conditional control transfer (jumps)** and **conditional data transfer (conditional moves, `cmov`)** as mechanisms for implementing C's conditional logic. Why is the conditional move strategy often **more efficient on modern pipelined processors**, and what crucial processor feature (related to branches) does it effectively bypass to achieve this performance gain?
+
+22. Define **branch misprediction** in the context of a pipelined processor. Explain the severe performance penalty (e.g., 15-30 clock cycles) incurred by a mispredicted jump. How does this penalty influence a compiler's decision to use a slower-looking **conditional move**, even if it requires computing both the `then` and `else` expressions?
+
+23. Not all conditional C expressions can be safely compiled using a conditional move. Give a specific example (like the `cread` function dereferencing a pointer) where using a conditional move would result in **invalid program behavior** (e.g., a fatal error) due to **side effects**. Explain why the traditional **conditional jump** mechanism is mandatory in such cases.
+
+24. Jump targets in x86-64 are typically encoded using a **PC-relative address**. Explain what PC-relative addressing means, and justify *why* this encoding method is superior to absolute addressing for generating **compact and relocatable object code**. Illustrate how the program counter (PC) is used in the calculation of the target address during execution.
+
+25. Consider a jump instruction encoded using a 4-byte PC-relative offset. If the jump instruction starts at address $A$, and the target offset is $O$ (in two's complement), write the formula for the final jump target address $T$. Explain why $T$ is calculated relative to the address *following* the jump instruction, $A + \text{InstructionLength}$.
