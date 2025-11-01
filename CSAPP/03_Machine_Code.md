@@ -40,14 +40,30 @@
 
 19. Compare and contrast the purpose and mechanism of the **`cmp`** instruction class versus the **`test`** instruction class. Explain why these instructions are essential for control flow, specifically describing their shared characteristic of **setting condition codes without altering any general-purpose registers**.
 
-20. The `inc` and `dec` instructions set the **Overflow (OF)** and **Zero (ZF)** flags but **leave the Carry Flag (CF) unchanged**. Explain the systems engineering implication of this specific design choice. (Hint: Consider the common use of the CF in multi-precision arithmetic.)
+20. The **`cmp`** (compare) and **`test`** instructions set all four primary condition codes ($\text{CF}, \text{ZF}, \text{SF}, \text{OF}$) based on the result of an arithmetic or logical operation. Describe the precise sequence of events when executing **`cmpq %rsi, %rdi`** where the contents of `%rdi` and `%rsi` are identical. Why is it a critical error to state that flags other than $\text{ZF}$ are "cleared" in this case?
 
-21. Differentiate between **conditional control transfer (jumps)** and **conditional data transfer (conditional moves, `cmov`)** as mechanisms for implementing C's conditional logic. Why is the conditional move strategy often **more efficient on modern pipelined processors**, and what crucial processor feature (related to branches) does it effectively bypass to achieve this performance gain?
+21. The C standard's definition of **signed less than** ($a < b$) is implemented in assembly using the **$\text{V}$-flag**, formally defined as $\text{V} = \mathbf{SF} \oplus \mathbf{OF}$ (Sign Flag XOR Overflow Flag).
+    * Explain the intuitive meaning of the $\text{V}$-flag. Why does this specific logical combination correctly determine the signed ordering, even when a **two's complement overflow** occurs during the subtraction $b - a$?
+    * Which assembly instruction relies on the $\text{V}$-flag alone to set a destination byte to 0 or 1?
+22. Using only the $\text{CF}$ (Carry Flag) and $\text{ZF}$ (Zero Flag), provide the precise logical condition (e.g., $\mathbf{CF} \land \mathbf{ZF}$, $\mathbf{CF} \lor \mathbf{ZF}$, $\sim\mathbf{CF}$) that must be true for the following two unsigned comparisons to hold after a **`cmp`** instruction:
+    * $a < b$ (Unsigned, *set below*)
+    * $a \le b$ (Unsigned, *set below or equal*)
 
-22. Define **branch misprediction** in the context of a pipelined processor. Explain the severe performance penalty (e.g., 15-30 clock cycles) incurred by a mispredicted jump. How does this penalty influence a compiler's decision to use a slower-looking **conditional move**, even if it requires computing both the `then` and `else` expressions?
+23. The `inc` and `dec` instructions set the **Overflow (OF)** and **Zero (ZF)** flags but **leave the Carry Flag (CF) unchanged**. Explain the systems engineering implication of this specific design choice. (Hint: Consider the common use of the CF in multi-precision arithmetic.)
 
-23. Not all conditional C expressions can be safely compiled using a conditional move. Give a specific example (like the `cread` function dereferencing a pointer) where using a conditional move would result in **invalid program behavior** (e.g., a fatal error) due to **side effects**. Explain why the traditional **conditional jump** mechanism is mandatory in such cases.
+24. Differentiate between **conditional control transfer (jumps)** and **conditional data transfer (conditional moves, `cmov`)** as mechanisms for implementing C's conditional logic. Why is the conditional move strategy often **more efficient on modern pipelined processors**, and what crucial processor feature (related to branches) does it effectively bypass to achieve this performance gain?
 
-24. Jump targets in x86-64 are typically encoded using a **PC-relative address**. Explain what PC-relative addressing means, and justify *why* this encoding method is superior to absolute addressing for generating **compact and relocatable object code**. Illustrate how the program counter (PC) is used in the calculation of the target address during execution.
+25. Define **branch misprediction** in the context of a pipelined processor. Explain the severe performance penalty (e.g., 15-30 clock cycles) incurred by a mispredicted jump. How does this penalty influence a compiler's decision to use a slower-looking **conditional move**, even if it requires computing both the `then` and `else` expressions?
 
-25. Consider a jump instruction encoded using a 4-byte PC-relative offset. If the jump instruction starts at address $A$, and the target offset is $O$ (in two's complement), write the formula for the final jump target address $T$. Explain why $T$ is calculated relative to the address *following* the jump instruction, $A + \text{InstructionLength}$.
+26. Not all conditional C expressions can be safely compiled using a conditional move. Give a specific example (like the `cread` function dereferencing a pointer) where using a conditional move would result in **invalid program behavior** (e.g., a fatal error) due to **side effects**. Explain why the traditional **conditional jump** mechanism is mandatory in such cases.
+
+27. Jump targets in x86-64 are typically encoded using a **PC-relative address**. Explain what PC-relative addressing means, and justify *why* this encoding method is superior to absolute addressing for generating **compact and relocatable object code**. Illustrate how the program counter (PC) is used in the calculation of the target address during execution.
+
+28. Consider a jump instruction encoded using a 4-byte PC-relative offset. If the jump instruction starts at address $A$, and the target offset is $O$ (in two's complement), write the formula for the final jump target address $T$. Explain why $T$ is calculated relative to the address *following* the jump instruction, $A + \text{InstructionLength}$.
+
+29.  **PC-Relative Direct Jumps in Modern x86-64:** In modern x86-64 (Linux/macOS) executables, **direct jumps** use a **PC-relative offset** rather than a 4-byte absolute address.
+    * Explain the systems engineering advantage (specifically related to **Position-Independent Code - PIC**) of using PC-relative offsets for jumps over absolute addressing.
+    * In the assembly instruction encoding, is the PC-relative offset calculated from the address of the jump instruction itself, or the address of the instruction *following* the jump? Justify the standard convention.
+30.  **CMOV Destination Constraint:** The conditional move (`cmov`) instruction class is subject to a strict architectural restriction: **The destination operand cannot be a memory location.**
+    * Explain the likely **architectural reason** for this constraint, relating it to the desire to keep the instruction simple, fast, and free of the memory complexity associated with a full Read-Modify-Write cycle.
+    * What practical limitation does this impose on a compiler when translating conditional assignments in C? (e.g., When is a CMOV not an option for a conditional assignment?)
