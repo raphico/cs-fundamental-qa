@@ -67,3 +67,25 @@
 30.  **CMOV Destination Constraint:** The conditional move (`cmov`) instruction class is subject to a strict architectural restriction: **The destination operand cannot be a memory location.**
     * Explain the likely **architectural reason** for this constraint, relating it to the desire to keep the instruction simple, fast, and free of the memory complexity associated with a full Read-Modify-Write cycle.
     * What practical limitation does this impose on a compiler when translating conditional assignments in C? (e.g., When is a CMOV not an option for a conditional assignment?)
+
+31. The `do-while` loop is the most straightforward C loop to translate into machine code.
+    * Explain the **architectural reason** why a `do-while` loop requires only **one conditional jump instruction** to implement its control flow.
+    * Describe the assembly structure, specifying where the conditional test and the jump back to the loop body are placed relative to the main body code.
+
+32. When reversing the assembly code for a loop, a register often holds a program variable (e.g., `%rax` holds `result` in factorial).
+    * If a register is used to hold a loop counter (`n`), what two specific instructions (one for updating, one for testing) would you expect to see inside the loop body to implement the C expression `n = n - 1` followed by the loop check?
+
+33. One common translation for a `while` loop is the **Jump-to-Middle** strategy.
+    * Explain the **necessity** of the **unconditional jump** (`jmp`) instruction placed immediately before the loop body. Why can't the compiler simply place the loop test at the beginning of the code block?
+    * How does this strategy structurally resemble the assembly code for a `do-while` loop, despite implementing the initial test required by the `while` structure?
+
+34.  **Guarded-Do Strategy and Optimization Trade-offs:** The compiler often uses the **Guarded-Do** strategy (a preliminary conditional jump followed by a `do-while` structure) when higher optimization levels are enabled.
+    * Explain the primary goal of the preliminary conditional jump (`jle .L_done`).
+    * In what specific scenario, concerning the initial value of the test expression, does the **Guarded-Do** strategy execute *fewer* instructions compared to the **Jump-to-Middle** strategy?
+
+35. The C standard defines the behavior of a `for` loop by equating it to a structure using a `while` loop.
+    * Provide the C structure (using a `while` loop, initialization, and update expressions) that precisely describes the behavior of the general `for (init-expr; test-expr; update-expr) body-statement;`.
+
+36. The presence of a `continue` statement inside a `for` loop breaks the simple equivalence rule from the previous question.
+    * Explain what execution step (initialization, body, test, or update) is **incorrectly bypassed** if one naively translates a `for` loop containing a `continue` statement into the equivalent `while` loop template.
+    * To correctly implement a `continue` in assembly or goto code, where must the program jump (which part of the loop structure) to ensure the loop continues its intended sequence?
