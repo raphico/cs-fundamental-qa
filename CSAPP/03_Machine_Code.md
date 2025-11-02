@@ -89,3 +89,25 @@
 36. The presence of a `continue` statement inside a `for` loop breaks the simple equivalence rule from the previous question.
     * Explain what execution step (initialization, body, test, or update) is **incorrectly bypassed** if one naively translates a `for` loop containing a `continue` statement into the equivalent `while` loop template.
     * To correctly implement a `continue` in assembly or goto code, where must the program jump (which part of the loop structure) to ensure the loop continues its intended sequence?
+
+37.  **Switch Index Normalization (The Critical First Step):** In a C `switch` statement where the case values range from a minimum of $L$ to a maximum of $H$ (e.g., $100$ to $106$), the compiler must first compute a normalized index, $i$.
+    * Formulate the mathematical expression used to compute the normalized index $i$ from the switch variable $x$.
+    * Why is this normalization step absolutely mandatory before accessing the jump table?
+
+38. The assembly code must perform a **bounds check** on the normalized index $i$ before accessing the jump table.
+    * What is the maximum valid value for the index $i$? (Express this in terms of $L$ and $H$).
+    * Describe the **precise assembly sequence** (using comparison and jump instructions) that ensures execution correctly branches to the **default case** if the index is outside the valid, normalized range $[0, H-L]$.
+
+39. Once the normalized index $i$ is validated, the execution transfers control using a two-step process: table lookup and indirect jump.
+    * Describe the **memory reference calculation** used to retrieve the target address from the jump table. Why must a scale factor of **8** be used in this calculation?
+    * Write the **general assembly format** for the final indirect jump instruction that uses the retrieved address to transfer control.
+
+40. Contrast the worst-case time complexity of using a **jump table** to execute a multiway branch with the time complexity of implementing the same logic using a long chain of **`if-else if` statements**. Explain *why* the jump table achieves its constant-time (O(1)) performance regardless of the number of cases.
+
+41. The compiler uses a **heuristic** (based on density and number of cases) to decide whether to implement a `switch` statement using a jump table or a sequence of `cmp`/`jmp` instructions.
+    * Identify the two primary scenarios (based on the number and range of cases) that would cause a compiler to **reject** the jump table approach and instead generate an equivalent sequence of sequential conditional tests.
+    * Justify the compiler's choice in the scenario where the case values are **very sparse** across a large range (e.g., cases 0, 100, and 1000).
+
+42. The C language allows **case fall-through** (omitting a `break` statement). Describe how the assembly code handles a fall-through scenario for a block of code (e.g., Case 102 falling into Case 103). What specific instruction is **omitted** at the end of the first case's code block to implement the fall-through?
+
+43. Explain how a jump table is structured to efficiently handle **missing case values** (e.g., case 101) and **multiple labels** corresponding to the same block of code (e.g., cases 104 and 106).
