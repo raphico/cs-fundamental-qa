@@ -223,5 +223,31 @@ I have integrated your critique on the x86-64 ABI, stack alignment, and register
     - If an array consists of elements (e.g., a custom `struct`) with a size $L=12$ bytes, what **multi-instruction sequence** must the compiler generate to compute the offset $L \cdot i$, and what specific assembly instruction replaces the single-step addressing mode in this scenario? Justify why this represents a performance cost.
 
 68. For a fixed-size array $D[R][C]$, the address calculation $x_D + L \cdot (C \cdot i + j)$ uses known constants. For a **Variable-Sized Array (VLA)** defined as `T D[N][N]` where $N$ is only known at runtime, the compiler must perform a dynamic calculation.
+
     - Identify the **specific arithmetic operation** in the address calculation that requires a runtime execution of the **`imulq`** instruction, which could otherwise be handled by a simpler shift or `leaq` for a fixed-size array.
     - Quantify the **performance penalty** incurred by the VLA implementation due to this runtime calculation versus the compiled-in constant calculation for a fixed-size array.
+
+69. Structures store all components in a **contiguous region of memory**. Explain the compiler's low-level mechanism for accessing a specific field (e.g., `r->j`) when given the base address of the structure (`r`). Why is this access performed entirely at **compile time**, and what specific information must the compiler know about the structure?
+
+70. Assume a pointer `r` to a structure `struct rec` (defined in your text) is in register $\% \mathbf{rdi}$, and an index $i$ is in $\% \mathbf{rsi}$. Write the single **`leaq`** instruction that computes the pointer value for the structure element **`&(r->a[i])`** and stores it in $\% \mathbf{rax}$. Explain how the instruction's components map to the structure's base address, array offset, and element size.
+
+71. The C notation `rp->width` is syntactic sugar for `(*rp).width`. Describe the exact, minimal sequence of assembly instructions required to compute the value of `rp->width`, assuming the structure pointer `rp` is in register $\% \mathbf{rdi}$ and the `width` field has an offset of $O$ bytes and size $L$ bytes.
+
+72. Define the memory allocation strategy of a C **`union`** (e.g., `union U3`). How does this strategy differ fundamentally from a **`struct`**, and how is the overall size of the union determined?
+
+73. A common, non-portable systems application of a union is to bypass the type system to inspect the raw bit pattern of a data type.
+
+    - Given a union containing a `double d` and an `unsigned long u`, explain the mechanism by which storing a value in `d` and then reading it from `u` allows a programmer to retrieve the **IEEE 754 bit pattern** without affecting the raw bits.
+    - Why does the numeric value of `u` generally bear **no relation** to the numeric value of `d` after this operation?
+
+74. The x86-64 architecture, while flexible, recommends that primitive objects of size $K$ bytes be aligned to addresses that are multiples of $K$.
+
+    - Why does maintaining this alignment (e.g., 8-byte alignment for a `double` or `long`) simplify the hardware design of the memory interface and improve system performance?
+
+75. Consider a structure `struct S1 { int i; char c; int j; }`. If the fields were minimally packed, `j` would start at an offset of 5 bytes.
+
+    - Explain why the compiler must insert **internal padding** bytes between `c` and `j`.
+    - Calculate the minimum number of padding bytes required between `c` and `j` to ensure that `j` satisfies its 4-byte alignment requirement, assuming the structure starts at a 4-byte aligned address.
+
+76. If a structure must be used in an array (e.g., `struct S2 d[4];`), the compiler may add **padding to the end** of the structure.
+    - Explain why this end padding is necessary. What specific alignment property of the **entire structure's size** must be satisfied to guarantee that every element $d[i]$ in the array also satisfies its maximum alignment requirement?
