@@ -177,6 +177,51 @@ I have integrated your critique on the x86-64 ABI, stack alignment, and register
     - In highly optimized code, the compiler often **repurposes** $\% \mathbf{rbp}$ as a general-purpose callee-saved register. Explain the architectural trade-off here: what performance benefit is gained, and what debugging feature is sacrificed?
 
 57. Describe the low-level, two-step operation performed by the assembly instruction **`pushq S`** in terms of the stack pointer ($\% \mathbf{rsp}$) and memory access $\mathbf{M}_8$:
+
     - Step 1: Stack Pointer update ($\mathbf{R}[\% \mathbf{rsp}] \leftarrow \dots$)
     - Step 2: Memory Write ($\mathbf{M}_8[\mathbf{R}[\% \mathbf{rsp}]] \leftarrow \dots$)
       Justify why the stack pointer is updated _before_ the memory write.
+
+58. For a declaration `T A[N];` where $T$ has a size of $L$ bytes, state the formula for the memory address of element $A[i]$. Then, explain the architectural significance of the x86-64 instruction set allowing scaled addressing factors of $1, 2, 4,$ and $8$. How do these fixed factors simplify the translation of common C array and pointer arithmetic?
+
+59. The C expression `A[i]` is identical to the pointer expression `*(A + i)`.
+
+    - Explain the **scaling operation** that the machine code must perform on the index $i$ before it is added to the base address $A$ to implement this pointer arithmetic correctly.
+    - Provide the single x86-64 instruction that computes the data address $A + L \cdot i$ and loads the value into a register, assuming the base address $A$ is in $\% \mathbf{rdx}$, the index $i$ is in $\% \mathbf{rcx}$, and the element size $L=4$.
+
+60. C stores multi-dimensional arrays (e.g., `T D[R][C];`) in memory using **row-major order**.
+
+    - Provide the general formula for the memory address of element $D[i][j]$, where $L$ is the size of type $T$. Explain how the number of columns ($C$) serves as the effective **stride** or scale factor when calculating the offset for row $i$.
+
+61. In the assembly code for accessing a nested array $P[i][j]$, you observe the following address computation sequence:
+
+    1.  `leaq 0(,%rdi,8), %rdx`
+    2.  `subq %rdi, %rdx`
+    3.  `addq %rsi, %rdx`
+        Assuming $\% \mathbf{rdi}$ holds the row index $i$ and the element size is 8 bytes (`long`), reverse engineer the C expression being computed in $\% \mathbf{rdx}$. Then, determine the **fixed column dimension $N$** of the array, $P[M][N]$, that results in this assembly code optimization.
+
+62. For fixed-size arrays (like matrix multiplication), compilers often optimize array access by replacing index-based looping with **pointer arithmetic**.
+
+    - When computing the inner product of row $i$ of matrix $A$ and column $k$ of matrix $B$ (where $A[i][j]$ and $B[j][k]$ are accessed inside the loop), describe the two distinct memory offsets that must be added to the pointers of $A$ and $B$ in each iteration to traverse the row and column, respectively.
+
+63. When accessing a **variable-size array** (`int A[n][n]`) using indices $A[i][j]$, the compiler cannot use the highly optimized sequence of shifts and adds (like `leaq` instructions) for address computation.
+
+    - Explain the **fundamental reason** the compiler is forced to use a full **multiplication instruction** to compute a portion of the element address.
+    - What is the computational cost or **performance trade-off** of this implementation versus fixed-size array access?
+
+64. Explain the critical architectural difference in memory layout and access between a **Nested Array** (`int D[R][C]`) and an **Array of Pointers** (`int *D[R]`).
+    - Which structure guarantees a **single, contiguous block** of memory, enabling the fast, single-step address calculation $x_D + L \cdot (C \cdot i + j)$?
+    - Describe the minimum **number of memory lookups** (dereferences) required at the assembly level to access an element $D[i][j]$ in the **Array of Pointers** structure.
+65. C arrays use **Row-Major Order**. Define this term explicitly. Why is this specific memory ordering choice—as opposed to column-major order—a crucial factor for optimizing program performance and exploiting **data caching** in loops that iterate through rows?
+
+66. The x86-64 memory addressing mode $Imm(r_b, r_i, s)$ is architecturally designed for array access. Assume you need to access a $T$ array $A[i]$ where $T$ has a size $L$.
+
+    - If $L$ is a power of 2 (e.g., $L=8$ for a `long`), explain how the compiler uses the **index register ($r_i$)** and the **scale factor ($s$)** fields in this addressing mode to implement the calculation $x_A + L \cdot i$ in a single assembly instruction.
+
+67. The scale factor $s$ in the x86-64 addressing mode can only be $1, 2, 4,$ or $8$.
+
+    - If an array consists of elements (e.g., a custom `struct`) with a size $L=12$ bytes, what **multi-instruction sequence** must the compiler generate to compute the offset $L \cdot i$, and what specific assembly instruction replaces the single-step addressing mode in this scenario? Justify why this represents a performance cost.
+
+68. For a fixed-size array $D[R][C]$, the address calculation $x_D + L \cdot (C \cdot i + j)$ uses known constants. For a **Variable-Sized Array (VLA)** defined as `T D[N][N]` where $N$ is only known at runtime, the compiler must perform a dynamic calculation.
+    - Identify the **specific arithmetic operation** in the address calculation that requires a runtime execution of the **`imulq`** instruction, which could otherwise be handled by a simpler shift or `leaq` for a fixed-size array.
+    - Quantify the **performance penalty** incurred by the VLA implementation due to this runtime calculation versus the compiled-in constant calculation for a fixed-size array.
