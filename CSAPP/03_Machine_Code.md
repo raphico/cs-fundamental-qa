@@ -250,4 +250,35 @@ I have integrated your critique on the x86-64 ABI, stack alignment, and register
     - Calculate the minimum number of padding bytes required between `c` and `j` to ensure that `j` satisfies its 4-byte alignment requirement, assuming the structure starts at a 4-byte aligned address.
 
 76. If a structure must be used in an array (e.g., `struct S2 d[4];`), the compiler may add **padding to the end** of the structure.
+
     - Explain why this end padding is necessary. What specific alignment property of the **entire structure's size** must be satisfied to guarantee that every element $d[i]$ in the array also satisfies its maximum alignment requirement?
+
+77. In C, every pointer has an associated type (e.g., `int *`, `char **`). Why are these **pointer types not a part of the machine code** (the binary executable)? What is the primary role of pointer typing that the C compiler maintains to assist the programmer?
+
+78. If a pointer `p` of type `char *` has the address value $X$, explain the numerical difference in the resulting memory address when calculating the C expressions:
+
+    - `(long *) p + 1`
+    - `(long *) (p + 1)`
+      Relate your answer to the **scaling factor** used in pointer arithmetic and the **precedence** of the cast operation.
+
+79. Function pointers provide a powerful capability for dynamic control flow.
+
+    - If `fp` is a function pointer, what value does `fp` store?
+    - When the function is invoked via `fp(...)`, what x86-64 instruction is executed to transfer control, and how does this differ from a standard direct `call` instruction?
+
+80. Explain the precise mechanism by which a **buffer overflow** (writing past the end of a local stack array like `char buf[8]`) can lead to a program crashing or executing malicious code. What critical piece of program state, stored immediately above the buffer, is typically corrupted to redirect control flow?
+
+81. Describe the **stack protector mechanism** (using a **canary** value) implemented by modern compilers like GCC.
+
+    - Where is the canary value typically stored relative to the local buffer and the return address?
+    - What instruction sequence is executed immediately before a function returns to detect corruption, and how does the use of a **randomized** canary value thwart an attacker who cannot inspect the running system?
+
+82. What is the security goal of **ASLR**, and how does it attempt to thwart buffer overflow attacks? Briefly describe the **"NOP sled"** technique attackers use to attempt to bypass ASLR, and why this technique is less effective in 64-bit systems compared to 32-bit systems.
+
+83. Under the x86-64 ABI, the Frame Pointer ($\% \mathbf{rbp}$) is typically omitted except when a function requires a **variable-size stack frame** (e.g., due to `alloca()` or a Variable-Length Array).
+
+    - Explain why the presence of a variable-size stack frame makes the conventional use of the Stack Pointer ($\% \mathbf{rsp}$) alone unreliable for referencing local variables and requires the establishment of a fixed Frame Pointer.
+
+84. For a function using a Frame Pointer:
+    - What is the two-instruction sequence typically executed at the **start** of the function to establish the frame pointer and save the previous one?
+    - What single, specialized instruction is executed at the **end** of the function (before `ret`) to restore the stack pointer and the saved frame pointer, thereby deallocating the entire variable stack frame?
