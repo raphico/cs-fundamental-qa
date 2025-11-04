@@ -280,5 +280,22 @@ I have integrated your critique on the x86-64 ABI, stack alignment, and register
     - Explain why the presence of a variable-size stack frame makes the conventional use of the Stack Pointer ($\% \mathbf{rsp}$) alone unreliable for referencing local variables and requires the establishment of a fixed Frame Pointer.
 
 84. For a function using a Frame Pointer:
+
     - What is the two-instruction sequence typically executed at the **start** of the function to establish the frame pointer and save the previous one?
     - What single, specialized instruction is executed at the **end** of the function (before `ret`) to restore the stack pointer and the saved frame pointer, thereby deallocating the entire variable stack frame?
+
+85. Name the three generations of media registers that evolved with SIMD extensions (MMX, SSE, AVX). What is the primary purpose of **SIMD** (Single Instruction, Multiple Data)?
+
+86. When x86-64 operates on **scalar floating-point data** (individual `float` or `double`), which portion of the 256-bit **YMM register** is primarily used? By what name does the assembly code typically refer to this lower, 128-bit portion?
+
+87. How many **YMM/XMM registers** are available in the AVX architecture for storing floating-point data?
+
+88. What instruction class (`vmovss`, `vmovsd`, etc.) is generally used to move a scalar floating-point value between a memory location and an XMM register?
+
+89. How many floating-point arguments (up to a maximum) can be passed to a function using the **XMM registers** under the x86-64 convention? What XMM register is used for returning a floating-point value?
+
+90. Are the XMM registers designated as **caller-saved** or **callee-saved**? What is the practical implication of this convention for a function ($\text{P}$) that calls another function ($\text{Q}$)?
+
+91. Unlike integer arithmetic, AVX floating-point instructions **cannot use immediate values** as operands. How must the compiler define and access floating-point constants (like $1.8$) for use in assembly arithmetic instructions?
+
+92. The floating-point comparison instructions (`ucomisd`, etc.) set the standard $\text{ZF}$ (Zero Flag) and $\text{CF}$ (Carry Flag), but also introduce the $\text{PF}$ (Parity Flag). What specific condition does the $\text{PF}$ flag indicate, and why is this condition important in C floating-point logic (e.g., $x == x$)?
