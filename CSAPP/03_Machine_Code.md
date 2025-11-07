@@ -45,6 +45,7 @@
 20. The C standard's definition of **signed less than** ($a < b$) is implemented in assembly using the **$\text{V}$-flag**, formally defined as $\text{V} = \mathbf{SF} \oplus \mathbf{OF}$ (Sign Flag XOR Overflow Flag).
     - Explain the intuitive meaning of the $\text{V}$-flag. Why does this specific logical combination correctly determine the signed ordering, even when a **two's complement overflow** occurs during the subtraction $b - a$?
     - Which assembly instruction relies on the $\text{V}$-flag alone to set a destination byte to 0 or 1?
+
 21. Using only the $\text{CF}$ (Carry Flag) and $\text{ZF}$ (Zero Flag), provide the precise logical condition (e.g., $\mathbf{CF} \land \mathbf{ZF}$, $\mathbf{CF} \lor \mathbf{ZF}$, $\sim\mathbf{CF}$) that must be true for the following two unsigned comparisons to hold after a **`cmp`** instruction:
 
     - $a < b$ (Unsigned, _set below_)
