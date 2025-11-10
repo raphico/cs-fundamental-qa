@@ -43,6 +43,7 @@
 19. The **`cmp`** (compare) and **`test`** instructions set all four primary condition codes ($\text{CF}, \text{ZF}, \text{SF}, \text{OF}$) based on the result of an arithmetic or logical operation. Describe the precise sequence of events when executing **`cmpq %rsi, %rdi`** where the contents of `%rdi` and `%rsi` are identical. Why is it a critical error to state that flags other than $\text{ZF}$ are "cleared" in this case?
 
 20. The C standard's definition of **signed less than** ($a < b$) is implemented in assembly using the **$\text{V}$-flag**, formally defined as $\text{V} = \mathbf{SF} \oplus \mathbf{OF}$ (Sign Flag XOR Overflow Flag).
+
     - Explain the intuitive meaning of the $\text{V}$-flag. Why does this specific logical combination correctly determine the signed ordering, even when a **two's complement overflow** occurs during the subtraction $b - a$?
     - Which assembly instruction relies on the $\text{V}$-flag alone to set a destination byte to 0 or 1?
 
@@ -63,69 +64,64 @@
 
 27. Consider a jump instruction encoded using a 4-byte PC-relative offset. If the jump instruction starts at address $A$, and the target offset is $O$ (in two's complement), write the formula for the final jump target address $T$. Explain why $T$ is calculated relative to the address _following_ the jump instruction, $A + \text{InstructionLength}$.
 
-28. **PC-Relative Direct Jumps in Modern x86-64:** In modern x86-64 (Linux/macOS) executables, **direct jumps** use a **PC-relative offset** rather than a 4-byte absolute address.
-
-    - Explain the systems engineering advantage (specifically related to **Position-Independent Code - PIC**) of using PC-relative offsets for jumps over absolute addressing.
-    - In the assembly instruction encoding, is the PC-relative offset calculated from the address of the jump instruction itself, or the address of the instruction _following_ the jump? Justify the standard convention.
-
-29. **CMOV Destination Constraint:** The conditional move (`cmov`) instruction class is subject to a strict architectural restriction: **The destination operand cannot be a memory location.**
+28. The conditional move (`cmov`) instruction class is subject to a strict architectural restriction: **The destination operand cannot be a memory location.**
 
     - Explain the likely **architectural reason** for this constraint, relating it to the desire to keep the instruction simple, fast, and free of the memory complexity associated with a full Read-Modify-Write cycle.
     - What practical limitation does this impose on a compiler when translating conditional assignments in C? (e.g., When is a CMOV not an option for a conditional assignment?)
 
-30. The `do-while` loop is the most straightforward C loop to translate into machine code.
+29. The `do-while` loop is the most straightforward C loop to translate into machine code.
 
     - Explain the **architectural reason** why a `do-while` loop requires only **one conditional jump instruction** to implement its control flow.
     - Describe the assembly structure, specifying where the conditional test and the jump back to the loop body are placed relative to the main body code.
 
-31. When reversing the assembly code for a loop, a register often holds a program variable (e.g., `%rax` holds `result` in factorial).
+30. When reversing the assembly code for a loop, a register often holds a program variable (e.g., `%rax` holds `result` in factorial).
 
     - If a register is used to hold a loop counter (`n`), what two specific instructions (one for updating, one for testing) would you expect to see inside the loop body to implement the C expression `n = n - 1` followed by the loop check?
 
-32. One common translation for a `while` loop is the **Jump-to-Middle** strategy.
+31. One common translation for a `while` loop is the **Jump-to-Middle** strategy.
 
     - Explain the **necessity** of the **unconditional jump** (`jmp`) instruction placed immediately before the loop body. Why can't the compiler simply place the loop test at the beginning of the code block?
     - How does this strategy structurally resemble the assembly code for a `do-while` loop, despite implementing the initial test required by the `while` structure?
 
-33. **Guarded-Do Strategy and Optimization Trade-offs:** The compiler often uses the **Guarded-Do** strategy (a preliminary conditional jump followed by a `do-while` structure) when higher optimization levels are enabled.
+32. **Guarded-Do Strategy and Optimization Trade-offs:** The compiler often uses the **Guarded-Do** strategy (a preliminary conditional jump followed by a `do-while` structure) when higher optimization levels are enabled.
 
     - Explain the primary goal of the preliminary conditional jump (`jle .L_done`).
     - In what specific scenario, concerning the initial value of the test expression, does the **Guarded-Do** strategy execute _fewer_ instructions compared to the **Jump-to-Middle** strategy?
 
-34. The C standard defines the behavior of a `for` loop by equating it to a structure using a `while` loop.
+33. The C standard defines the behavior of a `for` loop by equating it to a structure using a `while` loop.
 
     - Provide the C structure (using a `while` loop, initialization, and update expressions) that precisely describes the behavior of the general `for (init-expr; test-expr; update-expr) body-statement;`.
 
-35. The presence of a `continue` statement inside a `for` loop breaks the simple equivalence rule from the previous question.
+34. The presence of a `continue` statement inside a `for` loop breaks the simple equivalence rule from the previous question.
 
     - Explain what execution step (initialization, body, test, or update) is **incorrectly bypassed** if one naively translates a `for` loop containing a `continue` statement into the equivalent `while` loop template.
     - To correctly implement a `continue` in assembly or goto code, where must the program jump (which part of the loop structure) to ensure the loop continues its intended sequence?
 
-36. **Switch Index Normalization (The Critical First Step):** In a C `switch` statement where the case values range from a minimum of $L$ to a maximum of $H$ (e.g., $100$ to $106$), the compiler must first compute a normalized index, $i$.
+35. **Switch Index Normalization (The Critical First Step):** In a C `switch` statement where the case values range from a minimum of $L$ to a maximum of $H$ (e.g., $100$ to $106$), the compiler must first compute a normalized index, $i$.
 
     - Formulate the mathematical expression used to compute the normalized index $i$ from the switch variable $x$.
     - Why is this normalization step absolutely mandatory before accessing the jump table?
 
-37. The assembly code must perform a **bounds check** on the normalized index $i$ before accessing the jump table.
+36. The assembly code must perform a **bounds check** on the normalized index $i$ before accessing the jump table.
 
     - What is the maximum valid value for the index $i$? (Express this in terms of $L$ and $H$).
     - Describe the **precise assembly sequence** (using comparison and jump instructions) that ensures execution correctly branches to the **default case** if the index is outside the valid, normalized range $[0, H-L]$.
 
-38. Once the normalized index $i$ is validated, the execution transfers control using a two-step process: table lookup and indirect jump.
+37. Once the normalized index $i$ is validated, the execution transfers control using a two-step process: table lookup and indirect jump.
 
     - Describe the **memory reference calculation** used to retrieve the target address from the jump table. Why must a scale factor of **8** be used in this calculation?
     - Write the **general assembly format** for the final indirect jump instruction that uses the retrieved address to transfer control.
 
-39. Contrast the worst-case time complexity of using a **jump table** to execute a multiway branch with the time complexity of implementing the same logic using a long chain of **`if-else if` statements**. Explain _why_ the jump table achieves its constant-time (O(1)) performance regardless of the number of cases.
+38. Contrast the worst-case time complexity of using a **jump table** to execute a multiway branch with the time complexity of implementing the same logic using a long chain of **`if-else if` statements**. Explain _why_ the jump table achieves its constant-time (O(1)) performance regardless of the number of cases.
 
-40. The compiler uses a **heuristic** (based on density and number of cases) to decide whether to implement a `switch` statement using a jump table or a sequence of `cmp`/`jmp` instructions.
+39. The compiler uses a **heuristic** (based on density and number of cases) to decide whether to implement a `switch` statement using a jump table or a sequence of `cmp`/`jmp` instructions.
 
     - Identify the two primary scenarios (based on the number and range of cases) that would cause a compiler to **reject** the jump table approach and instead generate an equivalent sequence of sequential conditional tests.
     - Justify the compiler's choice in the scenario where the case values are **very sparse** across a large range (e.g., cases 0, 100, and 1000).
 
-41. The C language allows **case fall-through** (omitting a `break` statement). Describe how the assembly code handles a fall-through scenario for a block of code (e.g., Case 102 falling into Case 103). What specific instruction is **omitted** at the end of the first case's code block to implement the fall-through?
+40. The C language allows **case fall-through** (omitting a `break` statement). Describe how the assembly code handles a fall-through scenario for a block of code (e.g., Case 102 falling into Case 103). What specific instruction is **omitted** at the end of the first case's code block to implement the fall-through?
 
-42. Explain how a jump table is structured to efficiently handle **missing case values** (e.g., case 101) and **multiple labels** corresponding to the same block of code (e.g., cases 104 and 106).
+41. Explain how a jump table is structured to efficiently handle **missing case values** (e.g., case 101) and **multiple labels** corresponding to the same block of code (e.g., cases 104 and 106).
 
 I have integrated your critique on the x86-64 ABI, stack alignment, and register usage rules into a rigorous set of questions on procedure implementation. These are designed to test the architectural contract between calling functions.
 
