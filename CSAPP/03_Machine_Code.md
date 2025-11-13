@@ -159,7 +159,7 @@
     - What fixed reference point does the Frame Pointer provide, and why is this particularly valuable for **debugging** or in unoptimized code (e.g., when compiled with `-O0`)?
     - In highly optimized code, the compiler often **repurposes** $\% \mathbf{rbp}$ as a general-purpose callee-saved register. Explain the architectural trade-off here: what performance benefit is gained, and what debugging feature is sacrificed?
 
-53. Describe the low-level, two-step operation performed by the assembly instruction **`pushq S`** in terms of the stack pointer ($\% \mathbf{rsp}$) and memory access $\mathbf{M}_8$:
+53. Describe the low-level, two-step operation performed by the assembly instruction **`pushq S`** in terms of the stack pointer (`%rsp`) and memory access $\mathbf{M}_8$:
 
     - Step 1: Stack Pointer update ($\mathbf{R}[\% \mathbf{rsp}] \leftarrow \dots$)
     - Step 2: Memory Write ($\mathbf{M}_8[\mathbf{R}[\% \mathbf{rsp}]] \leftarrow \dots$)
