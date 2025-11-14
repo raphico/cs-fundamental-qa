@@ -187,98 +187,93 @@
 
     - When computing the inner product of row $i$ of matrix $A$ and column $k$ of matrix $B$ (where $A[i][j]$ and $B[j][k]$ are accessed inside the loop), describe the two distinct memory offsets that must be added to the pointers of $A$ and $B$ in each iteration to traverse the row and column, respectively.
 
-59. When accessing a **variable-size array** (`int A[n][n]`) using indices $A[i][j]$, the compiler cannot use the highly optimized sequence of shifts and adds (like `leaq` instructions) for address computation.
-
-    - Explain the **fundamental reason** the compiler is forced to use a full **multiplication instruction** to compute a portion of the element address.
-    - What is the computational cost or **performance trade-off** of this implementation versus fixed-size array access?
+59. Explain why compilers can’t optimize variable-size array indexing as well as fixed-size array indexing.
 
 60. Explain the critical architectural difference in memory layout and access between a **Nested Array** (`int D[R][C]`) and an **Array of Pointers** (`int *D[R]`).
+
     - Which structure guarantees a **single, contiguous block** of memory, enabling the fast, single-step address calculation $x_D + L \cdot (C \cdot i + j)$?
     - Describe the minimum **number of memory lookups** (dereferences) required at the assembly level to access an element $D[i][j]$ in the **Array of Pointers** structure.
+
 61. C arrays use **Row-Major Order**. Define this term explicitly. Why is this specific memory ordering choice—as opposed to column-major order—a crucial factor for optimizing program performance and exploiting **data caching** in loops that iterate through rows?
 
-62. The x86-64 memory addressing mode $Imm(r_b, r_i, s)$ is architecturally designed for array access. Assume you need to access a $T$ array $A[i]$ where $T$ has a size $L$.
-
-    - If $L$ is a power of 2 (e.g., $L=8$ for a `long`), explain how the compiler uses the **index register ($r_i$)** and the **scale factor ($s$)** fields in this addressing mode to implement the calculation $x_A + L \cdot i$ in a single assembly instruction.
-
-63. The scale factor $s$ in the x86-64 addressing mode can only be $1, 2, 4,$ or $8$.
+62. The scale factor $s$ in the x86-64 addressing mode can only be $1, 2, 4,$ or $8$.
 
     - If an array consists of elements (e.g., a custom `struct`) with a size $L=12$ bytes, what **multi-instruction sequence** must the compiler generate to compute the offset $L \cdot i$, and what specific assembly instruction replaces the single-step addressing mode in this scenario? Justify why this represents a performance cost.
 
-64. For a fixed-size array $D[R][C]$, the address calculation $x_D + L \cdot (C \cdot i + j)$ uses known constants. For a **Variable-Sized Array (VLA)** defined as `T D[N][N]` where $N$ is only known at runtime, the compiler must perform a dynamic calculation.
+63. For a fixed-size array $D[R][C]$, the address calculation $x_D + L \cdot (C \cdot i + j)$ uses known constants. For a **Variable-Sized Array (VLA)** defined as `T D[N][N]` where $N$ is only known at runtime, the compiler must perform a dynamic calculation.
 
     - Identify the **specific arithmetic operation** in the address calculation that requires a runtime execution of the **`imulq`** instruction, which could otherwise be handled by a simpler shift or `leaq` for a fixed-size array.
     - Quantify the **performance penalty** incurred by the VLA implementation due to this runtime calculation versus the compiled-in constant calculation for a fixed-size array.
 
-65. Structures store all components in a **contiguous region of memory**. Explain the compiler's low-level mechanism for accessing a specific field (e.g., `r->j`) when given the base address of the structure (`r`). Why is this access performed entirely at **compile time**, and what specific information must the compiler know about the structure?
+64. Structures store all components in a **contiguous region of memory**. Explain the compiler's low-level mechanism for accessing a specific field (e.g., `r->j`) when given the base address of the structure (`r`). Why is this access performed entirely at **compile time**, and what specific information must the compiler know about the structure?
 
-66. Assume a pointer `r` to a structure `struct rec` (defined in your text) is in register $\% \mathbf{rdi}$, and an index $i$ is in $\% \mathbf{rsi}$. Write the single **`leaq`** instruction that computes the pointer value for the structure element **`&(r->a[i])`** and stores it in $\% \mathbf{rax}$. Explain how the instruction's components map to the structure's base address, array offset, and element size.
+65. Assume a pointer `r` to a structure `struct rec` is in register $\% \mathbf{rdi}$, and an index $i$ is in $\% \mathbf{rsi}$. Write the single **`leaq`** instruction that computes the pointer value for the structure element **`&(r->a[i])`** and stores it in $\% \mathbf{rax}$. Explain how the instruction's components map to the structure's base address, array offset, and element size.
 
-67. The C notation `rp->width` is syntactic sugar for `(*rp).width`. Describe the exact, minimal sequence of assembly instructions required to compute the value of `rp->width`, assuming the structure pointer `rp` is in register $\% \mathbf{rdi}$ and the `width` field has an offset of $O$ bytes and size $L$ bytes.
+66. The C notation `rp->width` is syntactic sugar for `(*rp).width`. Describe the exact, minimal sequence of assembly instructions required to compute the value of `rp->width`, assuming the structure pointer `rp` is in register $\% \mathbf{rdi}$ and the `width` field has an offset of $O$ bytes and size $L$ bytes.
 
-68. Define the memory allocation strategy of a C **`union`** (e.g., `union U3`). How does this strategy differ fundamentally from a **`struct`**, and how is the overall size of the union determined?
+67. Define the memory allocation strategy of a C **`union`** (e.g., `union U3`). How does this strategy differ fundamentally from a **`struct`**, and how is the overall size of the union determined?
 
-69. A common, non-portable systems application of a union is to bypass the type system to inspect the raw bit pattern of a data type.
+68. A common, non-portable systems application of a union is to bypass the type system to inspect the raw bit pattern of a data type.
 
     - Given a union containing a `double d` and an `unsigned long u`, explain the mechanism by which storing a value in `d` and then reading it from `u` allows a programmer to retrieve the **IEEE 754 bit pattern** without affecting the raw bits.
     - Why does the numeric value of `u` generally bear **no relation** to the numeric value of `d` after this operation?
 
-70. The x86-64 architecture, while flexible, recommends that primitive objects of size $K$ bytes be aligned to addresses that are multiples of $K$.
+69. The x86-64 architecture, while flexible, recommends that primitive objects of size $K$ bytes be aligned to addresses that are multiples of $K$.
 
     - Why does maintaining this alignment (e.g., 8-byte alignment for a `double` or `long`) simplify the hardware design of the memory interface and improve system performance?
 
-71. Consider a structure `struct S1 { int i; char c; int j; }`. If the fields were minimally packed, `j` would start at an offset of 5 bytes.
+70. Consider a structure `struct S1 { int i; char c; int j; }`. If the fields were minimally packed, `j` would start at an offset of 5 bytes.
 
     - Explain why the compiler must insert **internal padding** bytes between `c` and `j`.
     - Calculate the minimum number of padding bytes required between `c` and `j` to ensure that `j` satisfies its 4-byte alignment requirement, assuming the structure starts at a 4-byte aligned address.
 
-72. If a structure must be used in an array (e.g., `struct S2 d[4];`), the compiler may add **padding to the end** of the structure.
+71. If a structure must be used in an array (e.g., `struct S2 d[4];`), the compiler may add **padding to the end** of the structure.
 
     - Explain why this end padding is necessary. What specific alignment property of the **entire structure's size** must be satisfied to guarantee that every element $d[i]$ in the array also satisfies its maximum alignment requirement?
 
-73. In C, every pointer has an associated type (e.g., `int *`, `char **`). Why are these **pointer types not a part of the machine code** (the binary executable)? What is the primary role of pointer typing that the C compiler maintains to assist the programmer?
+72. In C, every pointer has an associated type (e.g., `int *`, `char **`). Why are these **pointer types not a part of the machine code** (the binary executable)? What is the primary role of pointer typing that the C compiler maintains to assist the programmer?
 
-74. If a pointer `p` of type `char *` has the address value $X$, explain the numerical difference in the resulting memory address when calculating the C expressions:
+73. If a pointer `p` of type `char *` has the address value $X$, explain the numerical difference in the resulting memory address when calculating the C expressions:
 
     - `(long *) p + 1`
     - `(long *) (p + 1)`
       Relate your answer to the **scaling factor** used in pointer arithmetic and the **precedence** of the cast operation.
 
-75. Function pointers provide a powerful capability for dynamic control flow.
+74. Function pointers provide a powerful capability for dynamic control flow.
 
     - If `fp` is a function pointer, what value does `fp` store?
     - When the function is invoked via `fp(...)`, what x86-64 instruction is executed to transfer control, and how does this differ from a standard direct `call` instruction?
 
-76. Explain the precise mechanism by which a **buffer overflow** (writing past the end of a local stack array like `char buf[8]`) can lead to a program crashing or executing malicious code. What critical piece of program state, stored immediately above the buffer, is typically corrupted to redirect control flow?
+75. Explain the precise mechanism by which a **buffer overflow** (writing past the end of a local stack array like `char buf[8]`) can lead to a program crashing or executing malicious code. What critical piece of program state, stored immediately above the buffer, is typically corrupted to redirect control flow?
 
-77. Describe the **stack protector mechanism** (using a **canary** value) implemented by modern compilers like GCC.
+76. Describe the **stack protector mechanism** (using a **canary** value) implemented by modern compilers like GCC.
 
     - Where is the canary value typically stored relative to the local buffer and the return address?
     - What instruction sequence is executed immediately before a function returns to detect corruption, and how does the use of a **randomized** canary value thwart an attacker who cannot inspect the running system?
 
-78. What is the security goal of **ASLR**, and how does it attempt to thwart buffer overflow attacks? Briefly describe the **"NOP sled"** technique attackers use to attempt to bypass ASLR, and why this technique is less effective in 64-bit systems compared to 32-bit systems.
+77. What is the security goal of **ASLR**, and how does it attempt to thwart buffer overflow attacks? Briefly describe the **"NOP sled"** technique attackers use to attempt to bypass ASLR, and why this technique is less effective in 64-bit systems compared to 32-bit systems.
 
-79. Under the x86-64 ABI, the Frame Pointer ($\% \mathbf{rbp}$) is typically omitted except when a function requires a **variable-size stack frame** (e.g., due to `alloca()` or a Variable-Length Array).
+78. Under the x86-64 ABI, the Frame Pointer ($\% \mathbf{rbp}$) is typically omitted except when a function requires a **variable-size stack frame** (e.g., due to `alloca()` or a Variable-Length Array).
 
     - Explain why the presence of a variable-size stack frame makes the conventional use of the Stack Pointer ($\% \mathbf{rsp}$) alone unreliable for referencing local variables and requires the establishment of a fixed Frame Pointer.
 
-80. For a function using a Frame Pointer:
+79. For a function using a Frame Pointer:
 
     - What is the two-instruction sequence typically executed at the **start** of the function to establish the frame pointer and save the previous one?
     - What single, specialized instruction is executed at the **end** of the function (before `ret`) to restore the stack pointer and the saved frame pointer, thereby deallocating the entire variable stack frame?
 
-81. Name the three generations of media registers that evolved with SIMD extensions (MMX, SSE, AVX). What is the primary purpose of **SIMD** (Single Instruction, Multiple Data)?
+80. Name the three generations of media registers that evolved with SIMD extensions (MMX, SSE, AVX). What is the primary purpose of **SIMD** (Single Instruction, Multiple Data)?
 
-82. When x86-64 operates on **scalar floating-point data** (individual `float` or `double`), which portion of the 256-bit **YMM register** is primarily used? By what name does the assembly code typically refer to this lower, 128-bit portion?
+81. When x86-64 operates on **scalar floating-point data** (individual `float` or `double`), which portion of the 256-bit **YMM register** is primarily used? By what name does the assembly code typically refer to this lower, 128-bit portion?
 
-83. How many **YMM/XMM registers** are available in the AVX architecture for storing floating-point data?
+82. How many **YMM/XMM registers** are available in the AVX architecture for storing floating-point data?
 
-84. What instruction class (`vmovss`, `vmovsd`, etc.) is generally used to move a scalar floating-point value between a memory location and an XMM register?
+83. What instruction class (`vmovss`, `vmovsd`, etc.) is generally used to move a scalar floating-point value between a memory location and an XMM register?
 
-85. How many floating-point arguments (up to a maximum) can be passed to a function using the **XMM registers** under the x86-64 convention? What XMM register is used for returning a floating-point value?
+84. How many floating-point arguments (up to a maximum) can be passed to a function using the **XMM registers** under the x86-64 convention? What XMM register is used for returning a floating-point value?
 
-86. Are the XMM registers designated as **caller-saved** or **callee-saved**? What is the practical implication of this convention for a function ($\text{P}$) that calls another function ($\text{Q}$)?
+85. Are the XMM registers designated as **caller-saved** or **callee-saved**? What is the practical implication of this convention for a function ($\text{P}$) that calls another function ($\text{Q}$)?
 
-87. Unlike integer arithmetic, AVX floating-point instructions **cannot use immediate values** as operands. How must the compiler define and access floating-point constants (like $1.8$) for use in assembly arithmetic instructions?
+86. Unlike integer arithmetic, AVX floating-point instructions **cannot use immediate values** as operands. How must the compiler define and access floating-point constants (like $1.8$) for use in assembly arithmetic instructions?
 
-88. The floating-point comparison instructions (`ucomisd`, etc.) set the standard $\text{ZF}$ (Zero Flag) and $\text{CF}$ (Carry Flag), but also introduce the $\text{PF}$ (Parity Flag). What specific condition does the $\text{PF}$ flag indicate, and why is this condition important in C floating-point logic (e.g., $x == x$)?
+87. The floating-point comparison instructions (`ucomisd`, etc.) set the standard $\text{ZF}$ (Zero Flag) and $\text{CF}$ (Carry Flag), but also introduce the $\text{PF}$ (Parity Flag). What specific condition does the $\text{PF}$ flag indicate, and why is this condition important in C floating-point logic (e.g., $x == x$)?
