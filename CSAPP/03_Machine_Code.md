@@ -253,13 +253,13 @@
 
 77. What is the security goal of **ASLR**, and how does it attempt to thwart buffer overflow attacks? Briefly describe the **"NOP sled"** technique attackers use to attempt to bypass ASLR, and why this technique is less effective in 64-bit systems compared to 32-bit systems.
 
-78. Name the three generations of media registers that evolved with SIMD extensions (MMX, SSE, AVX). What is the primary purpose of **SIMD** (Single Instruction, Multiple Data)?
+78. Name the three generations of media registers that evolved with SIMD extensions. What is the primary purpose of **SIMD** (Single Instruction, Multiple Data)?
 
 79. When x86-64 operates on **scalar floating-point data** (individual `float` or `double`), which portion of the 256-bit **YMM register** is primarily used? By what name does the assembly code typically refer to this lower, 128-bit portion?
 
 80. How many **YMM/XMM registers** are available in the AVX architecture for storing floating-point data?
 
-81. What instruction class (`vmovss`, `vmovsd`, etc.) is generally used to move a scalar floating-point value between a memory location and an XMM register?
+81. What instruction class is generally used to move a scalar floating-point value between a memory location and an XMM register?
 
 82. How many floating-point arguments (up to a maximum) can be passed to a function using the **XMM registers** under the x86-64 convention? What XMM register is used for returning a floating-point value?
 
